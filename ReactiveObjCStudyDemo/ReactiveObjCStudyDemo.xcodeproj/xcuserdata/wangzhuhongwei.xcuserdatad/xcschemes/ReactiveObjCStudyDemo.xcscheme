@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "6FA084D01F298B7E00993812"
+               BlueprintIdentifier = "6FE7D0C31F29910300EAF513"
                BuildableName = "ReactiveObjCStudyDemo.app"
                BlueprintName = "ReactiveObjCStudyDemo"
                ReferencedContainer = "container:ReactiveObjCStudyDemo.xcodeproj">
@@ -32,7 +32,7 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "6FA084E91F298B7E00993812"
+               BlueprintIdentifier = "6FE7D0DC1F29910300EAF513"
                BuildableName = "ReactiveObjCStudyDemoTests.xctest"
                BlueprintName = "ReactiveObjCStudyDemoTests"
                ReferencedContainer = "container:ReactiveObjCStudyDemo.xcodeproj">
@@ -42,7 +42,7 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "6FA084F41F298B7E00993812"
+               BlueprintIdentifier = "6FE7D0E71F29910300EAF513"
                BuildableName = "ReactiveObjCStudyDemoUITests.xctest"
                BlueprintName = "ReactiveObjCStudyDemoUITests"
                ReferencedContainer = "container:ReactiveObjCStudyDemo.xcodeproj">
@@ -52,7 +52,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6FA084D01F298B7E00993812"
+            BlueprintIdentifier = "6FE7D0C31F29910300EAF513"
             BuildableName = "ReactiveObjCStudyDemo.app"
             BlueprintName = "ReactiveObjCStudyDemo"
             ReferencedContainer = "container:ReactiveObjCStudyDemo.xcodeproj">
@@ -75,7 +75,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6FA084D01F298B7E00993812"
+            BlueprintIdentifier = "6FE7D0C31F29910300EAF513"
             BuildableName = "ReactiveObjCStudyDemo.app"
             BlueprintName = "ReactiveObjCStudyDemo"
             ReferencedContainer = "container:ReactiveObjCStudyDemo.xcodeproj">
@@ -94,7 +94,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6FA084D01F298B7E00993812"
+            BlueprintIdentifier = "6FE7D0C31F29910300EAF513"
             BuildableName = "ReactiveObjCStudyDemo.app"
             BlueprintName = "ReactiveObjCStudyDemo"
             ReferencedContainer = "container:ReactiveObjCStudyDemo.xcodeproj">
