@@ -59,6 +59,7 @@
 
 	NSMutableArray *subscribers = self.subscribers;
 	@synchronized (subscribers) {
+        // 将订阅者加入到 subscribers 集合中
 		[subscribers addObject:subscriber];
 	}
 	
@@ -91,6 +92,7 @@
 #pragma mark RACSubscriber
 
 - (void)sendNext:(id)value {
+    // 遍历 subscribers 集合，拿出 subscriber ，执行 sendNext 方法
 	[self enumerateSubscribersUsingBlock:^(id<RACSubscriber> subscriber) {
 		[subscriber sendNext:value];
 	}];

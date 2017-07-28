@@ -41,6 +41,7 @@
 
 	if (self.didSubscribe != NULL) {
 		RACDisposable *schedulingDisposable = [RACScheduler.subscriptionScheduler schedule:^{
+            // 调用createSignal方法的block，将数据通过 subscriber 的next方法，发送给 subscriber
 			RACDisposable *innerDisposable = self.didSubscribe(subscriber);
 			[disposable addDisposable:innerDisposable];
 		}];

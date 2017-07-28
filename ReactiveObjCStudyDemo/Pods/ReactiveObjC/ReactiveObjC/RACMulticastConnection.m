@@ -40,9 +40,10 @@
 	NSCParameterAssert(subject != nil);
 
 	self = [super init];
-
+    // 原本的RACSignal
 	_sourceSignal = source;
 	_serialDisposable = [[RACSerialDisposable alloc] init];
+    // 本质上是个 RACSubject ，暴露出去的时候是作为 RACSignal 的类型
 	_signal = subject;
 	
 	return self;
@@ -54,6 +55,10 @@
 	BOOL shouldConnect = OSAtomicCompareAndSwap32Barrier(0, 1, &_hasConnected);
 
 	if (shouldConnect) {
+        // 只有在执行 connect 后，_signal(Subject) 才会订阅源信号
+        // 这时候，当 sourceSignal 有数据后，让 [_signal sendNext:data];
+        // 然后 subject 会遍历所有的订阅者 ，让所有的订阅者执行 [innerSubscriber sendNext:data]
+        // 之所以在 connect 后才 subscribe,是为了让 源信号的 didSubscribe 只执行一次。
 		self.serialDisposable.disposable = [self.sourceSignal subscribe:_signal];
 	}
 
@@ -62,7 +67,7 @@
 
 - (RACSignal *)autoconnect {
 	__block volatile int32_t subscriberCount = 0;
-
+    // 反正在返回后，第一次被订阅的时候，将 sourceSignal 和 _signal 之间建立联系
 	return [[RACSignal
 		createSignal:^(id<RACSubscriber> subscriber) {
 			OSAtomicIncrement32Barrier(&subscriberCount);

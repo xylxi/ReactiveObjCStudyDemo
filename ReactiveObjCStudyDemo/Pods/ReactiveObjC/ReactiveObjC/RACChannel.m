@@ -54,10 +54,11 @@
 	NSCParameterAssert(otherTerminal != nil);
 
 	self = [super init];
-
+    // 当前端
 	_values = values;
+    // 远端
 	_otherTerminal = otherTerminal;
-
+    
 	return self;
 }
 

@@ -110,9 +110,12 @@
 
 		__block volatile int32_t signalCount = 1;   // indicates self
 
+        // 源 signal 和 后面的生成的 cSignal 的所有 disposable 的集合 compoundDisposable
+        //
 		RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposable];
 
 		void (^completeSignal)(RACDisposable *) = ^(RACDisposable *finishedDisposable) {
+            // signalCount 减一
 			if (OSAtomicDecrement32Barrier(&signalCount) == 0) {
 				[subscriber sendCompleted];
 				[compoundDisposable dispose];
@@ -122,12 +125,14 @@
 		};
 
 		void (^addSignal)(RACSignal *) = ^(RACSignal *signal) {
+            // signalCount 加一
 			OSAtomicIncrement32Barrier(&signalCount);
-
+            // RACSerialDisposable 只能包含一个 disposable
 			RACSerialDisposable *selfDisposable = [[RACSerialDisposable alloc] init];
 			[compoundDisposable addDisposable:selfDisposable];
 
 			RACDisposable *disposable = [signal subscribeNext:^(id x) {
+                // bind 生成新的信号的 订阅者
 				[subscriber sendNext:x];
 			} error:^(NSError *error) {
 				[compoundDisposable dispose];
@@ -137,9 +142,9 @@
 					completeSignal(selfDisposable);
 				}
 			}];
-
+            // 源 signal 发送数据后对应产生的 cSignal 的 disposable
 			selfDisposable.disposable = disposable;
-		};
+		 };
 
 		@autoreleasepool {
 			RACSerialDisposable *selfDisposable = [[RACSerialDisposable alloc] init];
@@ -167,7 +172,7 @@
 					completeSignal(selfDisposable);
 				}
 			}];
-
+            // 源 signal 的 disposable
 			selfDisposable.disposable = bindingDisposable;
 		}
 

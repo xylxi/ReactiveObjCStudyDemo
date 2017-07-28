@@ -30,6 +30,7 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 }
 
 /// A subject that sends added execution signals.
+/// 很重要的 RACSubject 的对象
 @property (nonatomic, strong, readonly) RACSubject *addedExecutionSignalsSubject;
 
 /// A subject that sends the new value of `allowsConcurrentExecution` whenever it changes.
@@ -90,6 +91,7 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 
 	_executionSignals = [[[self.addedExecutionSignalsSubject
 		map:^(RACSignal *signal) {
+            // 将信号中的所有的错误 NSError 转换成了 RACEmptySignal 对象，并派发到主线程上
 			return [signal catchTo:[RACSignal empty]];
 		}]
 		deliverOn:RACScheduler.mainThreadScheduler]
@@ -114,14 +116,15 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 	_errors = [errorsConnection.signal setNameWithFormat:@"%@ -errors", self];
 	[errorsConnection connect];
 
+    // 是一个用于表示当前是否有任务执行的信号
 	RACSignal *immediateExecuting = [[[[self.addedExecutionSignalsSubject
-		flattenMap:^(RACSignal *signal) {
+		flattenMap:^(RACSignal *signal) { // 将每一个信号的开始和结束的时间点转换成 1 和 -1 两个信号；
 			return [[[signal
 				catchTo:[RACSignal empty]]
-				then:^{
+				then:^{// 用于连接两个信号，当第一个信号完成，才会连接then返回的信号。并且只会拿到then后面的信号量发送的数据
 					return [RACSignal return:@-1];
 				}]
-				startWith:@1];
+				startWith:@1]; // 当开始发送的时候，先发送 1
 		}]
 		scanWithStart:@0 reduce:^(NSNumber *running, NSNumber *next) {
 			return @(running.integerValue + next.integerValue);
@@ -129,33 +132,35 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 		map:^(NSNumber *count) {
 			return @(count.integerValue > 0);
 		}]
-		startWith:@NO];
+		startWith:@NO];// 信号 immediateExecuting 的开始值为 NO
 
 	_executing = [[[[[immediateExecuting
 		deliverOn:RACScheduler.mainThreadScheduler]
 		// This is useful before the first value arrives on the main thread.
 		startWith:@NO]
 		distinctUntilChanged]
-		replayLast]
+		replayLast] // 原有的信号变成了容量为 1 的 RACReplaySubject 对象，保存最新的状态，当有新的订阅者订阅的时候，将最新的状态发送给订阅者
 		setNameWithFormat:@"%@ -executing", self];
 	
 	RACSignal *moreExecutionsAllowed = [RACSignal
 		if:[self.allowsConcurrentExecutionSubject startWith:@NO]
 		then:[RACSignal return:@YES]
-		else:[immediateExecuting not]];
+		else:[immediateExecuting not]];// 如果不支持并发，就是跟 immediateExecuting 取反
 	
 	if (enabledSignal == nil) {
+        // 发送 @YES 的信号量
 		enabledSignal = [RACSignal return:@YES];
 	} else {
 		enabledSignal = [enabledSignal startWith:@YES];
 	}
 	
 	_immediateEnabled = [[[[RACSignal
-		combineLatest:@[ enabledSignal, moreExecutionsAllowed ]]
-		and]
+		combineLatest:@[ enabledSignal, moreExecutionsAllowed ]] // 将最新的两个信号量组合
+		and] // & 操作
 		takeUntil:self.rac_willDeallocSignal]
-		replayLast];
+		replayLast]; // 缓存最新状态
 	
+    // 于 __executing 没有什么区别，信号流中的第一个值会在订阅线程上到达，剩下的所有的值都会在主线程上派发
 	_enabled = [[[[[self.immediateEnabled
 		take:1]
 		concat:[[self.immediateEnabled skip:1] deliverOn:RACScheduler.mainThreadScheduler]]
@@ -164,7 +169,7 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 		setNameWithFormat:@"%@ -enabled", self];
 
 	return self;
-}
+} 
 
 #pragma mark Execution
 
