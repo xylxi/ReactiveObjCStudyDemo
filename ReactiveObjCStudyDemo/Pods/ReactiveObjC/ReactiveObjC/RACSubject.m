@@ -114,6 +114,7 @@
 	}];
 }
 
+//
 - (void)didSubscribeWithDisposable:(RACCompoundDisposable *)d {
 	if (d.disposed) return;
 	[self.disposable addDisposable:d];

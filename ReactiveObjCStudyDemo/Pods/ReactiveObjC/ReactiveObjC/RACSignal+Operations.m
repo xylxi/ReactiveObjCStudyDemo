@@ -74,6 +74,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	// Subscribe once immediately, and then use recursive scheduling for any
 	// further resubscriptions.
 	recursiveBlock(^{
+        // 再次调用 recursiveBlock
 		RACScheduler *recursiveScheduler = RACScheduler.currentScheduler ?: [RACScheduler scheduler];
 
 		RACDisposable *schedulingDisposable = [recursiveScheduler scheduleRecursiveBlock:recursiveBlock];
@@ -225,6 +226,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -delay: %f", self.name, (double)interval];
 }
 
+// 不断重试操作
 - (RACSignal *)repeat {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		return subscribeForever(self,
@@ -1125,7 +1127,8 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -any", self.name];
 }
 
-- (RACSignal *)any:(BOOL (^)(id object))predicateBlock {
+/// 找到第一个满足 predicateBlock ，即停止
+- (RACSignal *)any:(BOOL (^)(id object))predicateBlock { 
 	NSCParameterAssert(predicateBlock != NULL);
 
 	return [[[self materialize] bind:^{
@@ -1145,17 +1148,20 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -any:", self.name];
 }
 
+/// 所有都满足
 - (RACSignal *)all:(BOOL (^)(id object))predicateBlock {
 	NSCParameterAssert(predicateBlock != NULL);
 
 	return [[[self materialize] bind:^{
 		return ^(RACEvent *event, BOOL *stop) {
 			if (event.eventType == RACEventTypeCompleted) {
+                // 如果全部符合，就返回YES
 				*stop = YES;
 				return [RACSignal return:@YES];
 			}
 
 			if (event.eventType == RACEventTypeError || !predicateBlock(event.value)) {
+                // 如果存在 error 或者 不符合 predicateBlock 的值，返回NO并结束
 				*stop = YES;
 				return [RACSignal return:@NO];
 			}
@@ -1165,6 +1171,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -all:", self.name];
 }
 
+/// 重试个数
 - (RACSignal *)retry:(NSInteger)retryCount {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		__block NSInteger currentRetryCount = 0;
@@ -1178,7 +1185,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 					currentRetryCount++;
 					return;
 				}
-
+                // 就会在error中调用[disposable dispose]，这样subscribeForever就不会再无限循环下去了。
 				[disposable dispose];
 				[subscriber sendError:error];
 			},
@@ -1247,6 +1254,9 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -ignoreValues", self.name];
 }
 
+// materialize 和 dematerialize
+
+// 订阅 materialize 不会收到 error 和 completed 信号
 - (RACSignal *)materialize {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		return [self subscribeNext:^(id x) {
@@ -1288,11 +1298,12 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -not", self.name];
 }
 
+// 信号量类型必须是 RACTuple
 - (RACSignal *)and {
 	return [[self map:^(RACTuple *tuple) {
 		NSCAssert([tuple isKindOfClass:RACTuple.class], @"-and must only be used on a signal of RACTuples of NSNumbers. Instead, received: %@", tuple);
 		NSCAssert(tuple.count > 0, @"-and must only be used on a signal of RACTuples of NSNumbers, with at least 1 value in the tuple");
-
+        //
 		return @([tuple.rac_sequence all:^(NSNumber *number) {
 			NSCAssert([number isKindOfClass:NSNumber.class], @"-and must only be used on a signal of RACTuples of NSNumbers. Instead, tuple contains a non-NSNumber value: %@", tuple);
 
@@ -1325,7 +1336,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 			[tupleArray addObject:val];
 		}
 		RACTuple *arguments = [RACTuple tupleWithObjectsFromArray:[tupleArray subarrayWithRange:NSMakeRange(1, tupleArray.count - 1)]];
-
+        // 触发block
 		return [RACBlockTrampoline invokeBlock:tuple[0] withArguments:arguments];
 	}] setNameWithFormat:@"[%@] -reduceApply", self.name];
 }

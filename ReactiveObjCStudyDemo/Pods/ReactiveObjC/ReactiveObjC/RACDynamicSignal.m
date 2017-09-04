@@ -36,7 +36,9 @@
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
 	NSCParameterAssert(subscriber != nil);
 
+    //
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+    // 使用 RACPassthroughSubscriber 在包装一层
 	subscriber = [[RACPassthroughSubscriber alloc] initWithSubscriber:subscriber signal:self disposable:disposable];
 
 	if (self.didSubscribe != NULL) {

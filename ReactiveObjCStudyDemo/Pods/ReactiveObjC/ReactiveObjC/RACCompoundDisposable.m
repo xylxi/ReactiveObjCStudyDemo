@@ -169,6 +169,7 @@ static CFMutableArrayRef RACCreateDisposablesArray(void) {
 
 	// Performed outside of the lock in case the compound disposable is used
 	// recursively.
+    // 组合的disposable已经call dispose了，那么对将要加入的[disposable dispose];
 	if (shouldDispose) [disposable dispose];
 }
 

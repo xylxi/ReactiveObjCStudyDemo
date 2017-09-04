@@ -60,7 +60,8 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 	_innerSubscriber = subscriber;
 	_signal = signal;
 	_disposable = disposable;
-
+    
+    // 订阅者关联self.disposable
 	[self.innerSubscriber didSubscribeWithDisposable:self.disposable];
 	return self;
 }

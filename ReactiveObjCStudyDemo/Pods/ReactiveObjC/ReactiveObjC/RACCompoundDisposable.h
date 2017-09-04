@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// If -addDisposable: is called after the compound disposable has been disposed
 /// of, the given disposable is immediately disposed. This allows a compound
 /// disposable to act as a stand-in for a disposable that will be delivered
-/// asynchronously.
+/// asynchronously. 组合模式的 Disposable
 @interface RACCompoundDisposable : RACDisposable
 
 /// Creates and returns a new compound disposable.

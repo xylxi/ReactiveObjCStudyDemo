@@ -16,6 +16,13 @@
 	// NULL if the receiver is already disposed.
 	//
 	// This should only be used atomically.
+    
+    /**
+     *  类型类似于：@property (copy) void (^disposeBlock)(void);
+     *  在 disposal 要执行的任务逻辑。
+     *  1、如果没有初始值的话，则初始值默认为 `self`
+     *  2、当已经 disposal 过后，值为 NULL。
+     */
 	void * volatile _disposeBlock;
 }
 
@@ -69,8 +76,10 @@
 
 	while (YES) {
 		void *blockPtr = _disposeBlock;
+        // 比较旧值和新值是否指向同一内存地址
 		if (OSAtomicCompareAndSwapPtrBarrier(blockPtr, NULL, &_disposeBlock)) {
 			if (blockPtr != (__bridge void *)self) {
+                // 确保释放在线程安全的情况下是否 _disposeBlock 
 				disposeBlock = CFBridgingRelease(blockPtr);
 			}
 

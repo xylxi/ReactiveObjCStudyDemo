@@ -13,10 +13,10 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// A disposable encapsulates the work necessary to tear down and cleanup a
-/// subscription.
+/// subscription. 封装了删除和清理订阅需要的工作的disposable
 @interface RACDisposable : NSObject
 
-/// Whether the receiver has been disposed.
+/// Whether the receiver has been disposed. 接收方是否已经被清理
 ///
 /// Use of this property is discouraged, since it may be set to `YES`
 /// concurrently at any time.

@@ -105,13 +105,13 @@
 	 * If any signal sends an error at any point, send that to the subscriber.
 	 */
 
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) { 
 		RACSignalBindBlock bindingBlock = block();
 
+        // 
 		__block volatile int32_t signalCount = 1;   // indicates self
 
         // 源 signal 和 后面的生成的 cSignal 的所有 disposable 的集合 compoundDisposable
-        //
 		RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposable];
 
 		void (^completeSignal)(RACDisposable *) = ^(RACDisposable *finishedDisposable) {
@@ -130,15 +130,17 @@
             // RACSerialDisposable 只能包含一个 disposable
 			RACSerialDisposable *selfDisposable = [[RACSerialDisposable alloc] init];
 			[compoundDisposable addDisposable:selfDisposable];
-
+            // 原subscriber
 			RACDisposable *disposable = [signal subscribeNext:^(id x) {
                 // bind 生成新的信号的 订阅者
 				[subscriber sendNext:x];
 			} error:^(NSError *error) {
 				[compoundDisposable dispose];
+                // 有一个失败，就都失败了，因为 subscriber 触发了 error
 				[subscriber sendError:error];
 			} completed:^{
 				@autoreleasepool {
+                    // 完成后调用这个
 					completeSignal(selfDisposable);
 				}
 			}];
@@ -153,11 +155,13 @@
 			RACDisposable *bindingDisposable = [self subscribeNext:^(id x) {
 				// Manually check disposal to handle synchronous errors.
 				if (compoundDisposable.disposed) return;
-
+                
 				BOOL stop = NO;
+                // 将 next 值转为 signal
 				id signal = bindingBlock(x, &stop);
 
 				@autoreleasepool {
+                    // 执行 signal 作为 addSignal 参数，执行 addSignal(signal)
 					if (signal != nil) addSignal(signal);
 					if (signal == nil || stop) {
 						[selfDisposable dispose];
@@ -166,9 +170,12 @@
 				}
 			} error:^(NSError *error) {
 				[compoundDisposable dispose];
+                // 原subscriber
 				[subscriber sendError:error];
 			} completed:^{
 				@autoreleasepool {
+                    // 当走到这里的时候 signalCount - 1 = 0
+                    // [subscribe sendComplete]
 					completeSignal(selfDisposable);
 				}
 			}];
@@ -198,10 +205,12 @@
 	}] setNameWithFormat:@"[%@] -concat: %@", self.name, signal];
 }
 
-- (RACSignal *)zipWith:(RACSignal *)signal {
+- (RACSignal *)zipWith:(RACSignal *)signal { 
 	NSCParameterAssert(signal != nil);
 
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+        
+        // 1、两个临时数组存储两个 signal 的数据
 		__block BOOL selfCompleted = NO;
 		NSMutableArray *selfValues = [NSMutableArray array];
 
@@ -210,6 +219,7 @@
 
 		void (^sendCompletedIfNecessary)(void) = ^{
 			@synchronized (selfValues) {
+                // 如果任意一个 signal 完成了，并且 数组中的数据为空，就完成
 				BOOL selfEmpty = (selfCompleted && selfValues.count == 0);
 				BOOL otherEmpty = (otherCompleted && otherValues.count == 0);
 				if (selfEmpty || otherEmpty) [subscriber sendCompleted];
@@ -230,6 +240,7 @@
 			}
 		};
 
+        // 2、订阅两个 signal ，拿到数据 存储临时数据中
 		RACDisposable *selfDisposable = [self subscribeNext:^(id x) {
 			@synchronized (selfValues) {
 				[selfValues addObject:x ?: RACTupleNil.tupleNil];
@@ -244,6 +255,7 @@
 			}
 		}];
 
+        // 订阅 signalB
 		RACDisposable *otherDisposable = [signal subscribeNext:^(id x) {
 			@synchronized (selfValues) {
 				[otherValues addObject:x ?: RACTupleNil.tupleNil];

@@ -235,6 +235,7 @@
 	return [self objectPassingTest:block] != nil;
 }
 
+// 对序列中的元素做 并 操作
 - (BOOL)all:(BOOL (^)(id))block {
 	NSCParameterAssert(block != NULL);
 	

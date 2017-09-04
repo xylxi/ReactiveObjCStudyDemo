@@ -17,7 +17,7 @@
 @property (nonatomic, copy) void (^next)(id value);
 @property (nonatomic, copy) void (^error)(NSError *error);
 @property (nonatomic, copy) void (^completed)(void);
-
+// 当订阅者发出 completed 后，就 disposable.isDisposed 为 YES，就不能触发 sendNext 了
 @property (nonatomic, strong, readonly) RACCompoundDisposable *disposable;
 
 @end
@@ -40,7 +40,8 @@
 	self = [super init];
 
 	@unsafeify(self);
-
+    
+    // 善后工作
 	RACDisposable *selfDisposable = [RACDisposable disposableWithBlock:^{
 		@strongify(self);
 
@@ -92,6 +93,9 @@
 	}
 }
 
+// 为了在 dealloc 或者 sendCompleted 后，能够清理 otherDisposable
+// 因为在 createSignal: 后，会返回一个 RACDisposable *disposable
+// 在 [subscriber sendCompleted] 后能触发 disposable
 - (void)didSubscribeWithDisposable:(RACCompoundDisposable *)otherDisposable {
 	if (otherDisposable.disposed) return;
 

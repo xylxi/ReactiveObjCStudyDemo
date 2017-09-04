@@ -95,10 +95,13 @@
 	Class class = self.class;
 	
 	return [[self flattenMap:^(id value) {
+        // 将值封装到信号量中
+        // 也就是该信号量只发出 block(value) 值，然后就发送结束(sendComplete)
 		return [class return:block(value)];
 	}] setNameWithFormat:@"[%@] -map:", self.name];
 }
 
+// 不管放什么信号，都返回 object
 - (__kindof RACStream *)mapReplace:(id)object {
 	return [[self map:^(id _) {
 		return object;
@@ -128,6 +131,7 @@
 		if (block(value)) {
 			return [class return:value];
 		} else {
+            // 不符合的转化为 empty 信号量
 			return class.empty;
 		}
 	}] setNameWithFormat:@"[%@] -filter:", self.name];
@@ -139,6 +143,7 @@
 	}] setNameWithFormat:@"[%@] -ignore: %@", self.name, RACDescription(value)];
 }
 
+// self 信号量的数据类型必须 RACTuple
 - (__kindof RACStream *)reduceEach:(id (^)())reduceBlock {
 	NSCParameterAssert(reduceBlock != nil);
 

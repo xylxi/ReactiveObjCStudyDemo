@@ -30,7 +30,8 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 }
 
 /// A subject that sends added execution signals.
-/// 很重要的 RACSubject 的对象
+/// 很重要的 RACSubject 的对象 发送添加的执行信号的Subject
+///
 @property (nonatomic, strong, readonly) RACSubject *addedExecutionSignalsSubject;
 
 /// A subject that sends the new value of `allowsConcurrentExecution` whenever it changes.
@@ -89,6 +90,7 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 	_allowsConcurrentExecutionSubject = [RACSubject new];
 	_signalBlock = [signalBlock copy];
 
+    // 高阶信号量 可以使用flatten，switchToLatest，concat进行降阶
 	_executionSignals = [[[self.addedExecutionSignalsSubject
 		map:^(RACSignal *signal) {
             // 将信号中的所有的错误 NSError 转换成了 RACEmptySignal 对象，并派发到主线程上
@@ -118,10 +120,11 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 
     // 是一个用于表示当前是否有任务执行的信号
 	RACSignal *immediateExecuting = [[[[self.addedExecutionSignalsSubject
-		flattenMap:^(RACSignal *signal) { // 将每一个信号的开始和结束的时间点转换成 1 和 -1 两个信号；
-			return [[[signal
+		flattenMap:^(RACSignal *signal) {
+            // 将每一个信号的开始和结束的时间点转换成 1 和 -1 两个信号；
+			return [[[signal // 当这个signal执行结束==> complete或者error时候==>then==>-1
 				catchTo:[RACSignal empty]]
-				then:^{// 用于连接两个信号，当第一个信号完成，才会连接then返回的信号。并且只会拿到then后面的信号量发送的数据
+				then:^{// 忽略signal的所有values，用于连接两个信号，当第一个信号(signal)完成，才会连接then返回的信号。并且只会拿到then后面的信号量发送的数据-1
 					return [RACSignal return:@-1];
 				}]
 				startWith:@1]; // 当开始发送的时候，先发送 1
@@ -199,7 +202,7 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 		multicast:[RACReplaySubject subject]];
 	
 	[self.addedExecutionSignalsSubject sendNext:connection.signal];
-
+    // 执行 signal 的原有的 didSubscribe
 	[connection connect];
 	return [connection.signal setNameWithFormat:@"%@ -execute: %@", self, RACDescription(input)];
 }
