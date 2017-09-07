@@ -33,6 +33,7 @@
 }
 
 - (RACChannelTerminal *)rac_newTextChannel {
+    // 用于返回一个一端绑定 UIControlEventAllEditingEvents 事件的 RACChannelTerminal 对象。
 	return [self rac_channelForControlEvents:UIControlEventAllEditingEvents key:@keypath(self.text) nilValue:@""];
 }
 

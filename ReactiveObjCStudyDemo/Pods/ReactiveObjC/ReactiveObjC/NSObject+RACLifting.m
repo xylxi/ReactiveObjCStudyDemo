@@ -25,6 +25,7 @@
 	NSMethodSignature *methodSignature = [self methodSignatureForSelector:selector];
 	NSCAssert(methodSignature != nil, @"%@ does not respond to %@", self, NSStringFromSelector(selector));
 	
+    // 当发送value的时候，将value作为参数触发selector;
 	return [[[[arguments
 		takeUntil:self.rac_willDeallocSignal]
 		map:^(RACTuple *arguments) {
@@ -52,7 +53,7 @@
 	NSCAssert(numberOfArguments == signals.count, @"Wrong number of signals for %@ (expected %lu, got %lu)", NSStringFromSelector(selector), (unsigned long)numberOfArguments, (unsigned long)signals.count);
 
 	return [[self
-		rac_liftSelector:selector withSignalOfArguments:[RACSignal combineLatest:signals]]
+		rac_liftSelector:selector withSignalOfArguments:[RACSignal combineLatest:signals]] // combineLatest结合成一个信号量
 		setNameWithFormat:@"%@ -rac_liftSelector: %s withSignalsFromArray: %@", RACDescription(self), sel_getName(selector), signals];
 }
 

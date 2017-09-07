@@ -32,6 +32,10 @@
 		takeUntil:[[channel.followingTerminal
 			ignoreValues]
 			catchTo:RACSignal.empty]];
+    
+    // 当eventSignal信号发送value时，将value作为参数，调用selector方法
+    // 拿到value后===>channel.followingTerminal
+    // 然后 channel.followingTerminal===>channel.leadingTerminal
 	[[self
 		rac_liftSelector:@selector(valueForKey:) withSignals:eventSignal, nil]
 		subscribe:channel.followingTerminal];
@@ -40,6 +44,8 @@
 		map:^(id value) {
 			return value ?: nilValue;
 		}];
+    // leadingTerminal收到value后==>leadingTerminal==>valuesSignal
+    // valuesSignal ==> key 的值。
 	[self rac_liftSelector:@selector(setValue:forKey:) withSignals:valuesSignal, [RACSignal return:key], nil];
 
 	return channel.leadingTerminal;

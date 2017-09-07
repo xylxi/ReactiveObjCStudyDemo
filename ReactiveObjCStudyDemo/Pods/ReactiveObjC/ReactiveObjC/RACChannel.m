@@ -34,6 +34,7 @@
 	RACReplaySubject *followingSubject = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"followingSubject"];
 
 	// Propagate errors and completion to everything.
+    // 我们并不希望 leadingSubject 有任何的初始值，但是我们需要 error 和 completed 信息可以被重播。
 	[[leadingSubject ignoreValues] subscribe:followingSubject];
 	[[followingSubject ignoreValues] subscribe:leadingSubject];
 
@@ -54,22 +55,22 @@
 	NSCParameterAssert(otherTerminal != nil);
 
 	self = [super init];
-    // 当前端
+    // 当前端点
 	_values = values;
-    // 远端
+    // 远程端点
 	_otherTerminal = otherTerminal;
     
 	return self;
 }
 
 #pragma mark RACSignal
-
+// 重写subscribe:方法
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
 	return [self.values subscribe:subscriber];
 }
 
 #pragma mark <RACSubscriber>
-
+// 使用self.otherTerminal导致，订阅当前端点(self.values)的订阅者不会收到订阅
 - (void)sendNext:(id)value {
 	[self.otherTerminal sendNext:value];
 }

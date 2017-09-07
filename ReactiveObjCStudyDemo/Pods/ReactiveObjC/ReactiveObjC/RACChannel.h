@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 ///
 /// New subscribers to this terminal will not receive a starting value, but will
 /// receive all future values that are sent to the `followingTerminal`.
+//  对模型进行的操作最后都会发送给 leadingTerminal 再通过内部的实现发送给 followingTerminal  由于视图是 followingTerminal 的订阅者，所以消息最终会发送到视图上。
 @property (nonatomic, strong, readonly) RACChannelTerminal *leadingTerminal;
 
 /// The terminal which "follows" the lead of the other terminal, only sending
@@ -46,6 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// The latest value sent to the `leadingTerminal` (if any) will be sent
 /// immediately to new subscribers of this terminal, and then all future values
 /// as well.
+//  RACChannel 的绑定都是双向的，视图收到用户的动作，例如点击等事件时，会将消息发送给 followingTerminal，而 followingTerminal 并不会将消息发送给自己的订阅者（视图），而是会发送给 leadingTerminal，并通过 leadingTerminal 发送给其订阅者，即模型。
 @property (nonatomic, strong, readonly) RACChannelTerminal *followingTerminal;
 
 @end
