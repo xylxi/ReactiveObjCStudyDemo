@@ -97,6 +97,7 @@
 	return [[self flattenMap:^(id value) {
         // 将值封装到信号量中
         // 也就是该信号量只发出 block(value) 值，然后就发送结束(sendComplete)
+        // 使用 class ， 是因为子类有可能会去重洗return方法
 		return [class return:block(value)];
 	}] setNameWithFormat:@"[%@] -map:", self.name];
 }
@@ -295,6 +296,7 @@
 	
 	return [[self bind:^{
 		return ^ id (id value, BOOL *stop) {
+            // 一旦满足就停止发送信号
 			if (predicate(value)) return nil;
 
 			return [class return:value];
@@ -320,6 +322,7 @@
 
 		return ^ id (id value, BOOL *stop) {
 			if (skipping) {
+                // 当不满足后，才可以开始发送数据
 				if (predicate(value)) {
 					skipping = NO;
 				} else {

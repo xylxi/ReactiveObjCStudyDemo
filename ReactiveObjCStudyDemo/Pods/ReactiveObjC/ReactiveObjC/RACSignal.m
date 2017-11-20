@@ -163,7 +163,7 @@
 				@autoreleasepool {
                     // 执行 signal 作为 addSignal 参数，执行 addSignal(signal)
 					if (signal != nil) addSignal(signal);
-					if (signal == nil || stop) {
+					if (signal == nil || stop) {// 如果bindingBlock中返回的signal为nil或者stop为YES，completeSignal(selfDisposable) ，就会让subscribe发送complete
 						[selfDisposable dispose];
 						completeSignal(selfDisposable);
 					}
@@ -414,5 +414,9 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 	[[self ignoreValues] asynchronousFirstOrDefault:nil success:&success error:error];
 	return success;
 }
+
+//- (void)dealloc{
+//    NSLog(@"%@ signle is deal",self.name);
+//}
 
 @end

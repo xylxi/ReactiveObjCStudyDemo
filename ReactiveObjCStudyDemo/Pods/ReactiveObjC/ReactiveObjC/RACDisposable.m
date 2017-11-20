@@ -22,6 +22,8 @@
      *  在 disposal 要执行的任务逻辑。
      *  1、如果没有初始值的话，则初始值默认为 `self`
      *  2、当已经 disposal 过后，值为 NULL。
+     *  3、关于 volatile 和 OSMemoryBarrier
+     *  http://www.jianshu.com/p/709173eb5fd6
      */
 	void * volatile _disposeBlock;
 }
@@ -76,7 +78,9 @@
 
 	while (YES) {
 		void *blockPtr = _disposeBlock;
-        // 比较旧值和新值是否指向同一内存地址
+        // 比较blockPtr和&_disposeBlock是否指向同一内存地址
+        // 如果是将返回YES
+        // 将 &_disposeBlock 置为新值 NULL
 		if (OSAtomicCompareAndSwapPtrBarrier(blockPtr, NULL, &_disposeBlock)) {
 			if (blockPtr != (__bridge void *)self) {
                 // 确保释放在线程安全的情况下是否 _disposeBlock 

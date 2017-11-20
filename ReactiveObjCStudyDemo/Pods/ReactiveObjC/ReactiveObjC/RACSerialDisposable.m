@@ -87,8 +87,8 @@
 	BOOL alreadyDisposed;
 
 	pthread_mutex_lock(&_mutex);
-	alreadyDisposed = _disposed;
-	if (!alreadyDisposed) {
+	alreadyDisposed = _disposed; // 如果_disposed 为YES 说明当前的 清理器 已经被清理过了
+	if (!alreadyDisposed) {      // 如果当前 清理器 已经被清理过了，将新的清理器清理掉
 		existingDisposable = _disposable;
 		_disposable = newDisposable;
 	}

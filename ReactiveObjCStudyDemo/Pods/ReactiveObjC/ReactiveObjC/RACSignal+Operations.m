@@ -376,6 +376,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -collect", self.name];
 }
 
+// 保留指定个数的count，当原信号完成后，在给订阅者发送给过
 - (RACSignal *)takeLast:(NSUInteger)count {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		NSMutableArray *valuesTaken = [NSMutableArray arrayWithCapacity:count];
@@ -388,6 +389,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		} error:^(NSError *error) {
 			[subscriber sendError:error];
 		} completed:^{
+            // 原信号完成后在发送给订阅者获取到的数据
 			for (id value in valuesTaken) {
 				[subscriber sendNext:value == RACTupleNil.tupleNil ? nil : value];
 			}
@@ -735,6 +737,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"+interval: %f onScheduler: %@ withLeeway: %f", (double)interval, scheduler, (double)leeway];
 }
 
+// 如果signalTrigger发信号了，就完成订阅
 - (RACSignal *)takeUntil:(RACSignal *)signalTrigger {
 	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
@@ -768,11 +771,13 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 	}] setNameWithFormat:@"[%@] -takeUntil: %@", self.name, signalTrigger];
 }
 
+// replacement发信号后，将订阅者从信号量的订阅改为订阅replacement
 - (RACSignal *)takeUntilReplacement:(RACSignal *)replacement {
 	return [RACSignal createSignal:^(id<RACSubscriber> subscriber) {
 		RACSerialDisposable *selfDisposable = [[RACSerialDisposable alloc] init];
 
 		RACDisposable *replacementDisposable = [replacement subscribeNext:^(id x) {
+            
 			[selfDisposable dispose];
 			[subscriber sendNext:x];
 		} error:^(NSError *error) {
@@ -784,6 +789,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 		}];
 
 		if (!selfDisposable.disposed) {
+            // 防止源信号发从完成或者错误信号后，订阅者完成订阅
 			selfDisposable.disposable = [[self
 				concat:[RACSignal never]]
 				subscribe:subscriber];
@@ -806,6 +812,7 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 
 				// -concat:[RACSignal never] prevents completion of the receiver from
 				// prematurely terminating the inner signal.
+                // takeUntil:===> 在triger信号发送后，订阅者取消订阅x的信号
 				return [x takeUntil:[connection.signal concat:[RACSignal never]]];
 			}]
 			subscribe:subscriber];

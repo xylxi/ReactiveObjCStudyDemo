@@ -33,6 +33,7 @@
 }
 
 - (id)invokeWithArguments:(RACTuple *)arguments {
+    // 根据 block 和 RACTuple 的包装个数，生成SEL
 	SEL selector = [self selectorForArgumentCount:arguments.count];
 	NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:selector]];
 	invocation.selector = selector;

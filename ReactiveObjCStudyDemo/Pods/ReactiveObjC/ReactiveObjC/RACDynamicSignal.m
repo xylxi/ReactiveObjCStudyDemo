@@ -35,10 +35,9 @@
 
 - (RACDisposable *)subscribe:(id<RACSubscriber>)subscriber {
 	NSCParameterAssert(subscriber != nil);
-
-    //
+    // 如果外面使用 [disposable dispose] 后，订阅者就不会在订阅该信号量了，但是订阅者没有完成
 	RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
-    // 使用 RACPassthroughSubscriber 在包装一层
+    // 使用 RACPassthroughSubscriber 在包装一层，为什么需要这一个包装呢
 	subscriber = [[RACPassthroughSubscriber alloc] initWithSubscriber:subscriber signal:self disposable:disposable];
 
 	if (self.didSubscribe != NULL) {
