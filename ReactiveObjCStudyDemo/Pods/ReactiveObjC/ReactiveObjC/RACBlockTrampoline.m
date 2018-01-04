@@ -35,6 +35,7 @@
 - (id)invokeWithArguments:(RACTuple *)arguments {
     // 根据 block 和 RACTuple 的包装个数，生成SEL
 	SEL selector = [self selectorForArgumentCount:arguments.count];
+    // NSObject 的生成方法签名的方法
 	NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:selector]];
 	invocation.selector = selector;
 	invocation.target = self;
@@ -44,10 +45,11 @@
 		NSInteger argIndex = (NSInteger)(i + 2);
 		[invocation setArgument:&arg atIndex:argIndex];
 	}
-
+    // 触发方法
 	[invocation invoke];
 	
 	__unsafe_unretained id returnVal;
+    // 获取返回值
 	[invocation getReturnValue:&returnVal];
 	return returnVal;
 }

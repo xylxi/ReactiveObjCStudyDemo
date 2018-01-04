@@ -42,6 +42,7 @@ static void *UIButtonEnabledDisposableKey = &UIButtonEnabledDisposableKey;
 	
 	for (NSString *selector in [self actionsForTarget:self forControlEvent:UIControlEventTouchUpInside]) {
 		if (hijackSelector == NSSelectorFromString(selector)) {
+            // 添加过就返回
 			return;
 		}
 	}

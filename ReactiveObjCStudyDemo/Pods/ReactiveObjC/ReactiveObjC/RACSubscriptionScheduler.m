@@ -35,7 +35,7 @@
 	NSCParameterAssert(block != NULL);
 
 	if (RACScheduler.currentScheduler == nil) return [self.backgroundScheduler schedule:block];
-
+    // RACSubscriptionScheduler 如果是在主线程的话，立马执行block，而不是将block放入主队列中
 	block();
 	return nil;
 }

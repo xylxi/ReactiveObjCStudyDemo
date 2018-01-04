@@ -142,7 +142,7 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 		// This is useful before the first value arrives on the main thread.
 		startWith:@NO]
 		distinctUntilChanged]
-		replayLast] // 原有的信号变成了容量为 1 的 RACReplaySubject 对象，保存最新的状态，当有新的订阅者订阅的时候，将最新的状态发送给订阅者
+		replayLast] // 到这一步才是真的对immediateExecuting的订阅
 		setNameWithFormat:@"%@ -executing", self];
 	
 	RACSignal *moreExecutionsAllowed = [RACSignal
@@ -179,6 +179,7 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 - (RACSignal *)execute:(id)input {
 	// `immediateEnabled` is guaranteed to send a value upon subscription, so
 	// -first is acceptable here.
+    // 取当前一个bool值
 	BOOL enabled = [[self.immediateEnabled first] boolValue];
 	if (!enabled) {
 		NSError *error = [NSError errorWithDomain:RACCommandErrorDomain code:RACCommandErrorNotEnabled userInfo:@{
@@ -197,6 +198,10 @@ const NSInteger RACCommandErrorNotEnabled = 1;
 	//
 	// This means that `executing` and `enabled` will send updated values before
 	// the signal actually starts performing work.
+    // 注意subscribeOn: 这个地方
+    // 效果就是 didSubscriber() 放在了主队列中 dispath_async(self.queue,block)
+    // 信号真正订阅在函数返回之后
+    // 因为队列的先进先出的特性
 	RACMulticastConnection *connection = [[signal
 		subscribeOn:RACScheduler.mainThreadScheduler]
 		multicast:[RACReplaySubject subject]];

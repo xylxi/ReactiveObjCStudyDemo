@@ -86,7 +86,7 @@
 - (void)sendCompleted {
 	@synchronized (self) {
 		void (^completedBlock)(void) = [self.completed copy];
-		[self.disposable dispose];
+		[self.disposable dispose]; // 将nextBlock errorBlock completeBlock 置为nil
 
 		if (completedBlock == nil) return;
 		completedBlock();

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="vNq-6V-J1V">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="vNq-6V-J1V">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13527"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -44,27 +44,39 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="B1g-S2-rVy">
-                                <rect key="frame" x="16" y="139" width="343" height="30"/>
-                                <nil key="textColor"/>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="umc-Al-abE">
+                                <rect key="frame" x="67" y="139" width="240" height="128"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="128" id="KuN-xP-GeA"/>
+                                    <constraint firstAttribute="width" constant="240" id="NBI-Cs-M9n"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits"/>
-                            </textField>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aeo-Yt-Tcn">
+                                <rect key="frame" x="164" y="333" width="46" height="30"/>
+                                <state key="normal" title="Button"/>
+                                <connections>
+                                    <action selector="click:" destination="BYZ-38-t0r" eventType="touchUpInside" id="oA4-DT-DKK"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="B1g-S2-rVy" firstAttribute="top" secondItem="zeE-Bl-acb" secondAttribute="bottom" constant="8" id="CyB-IO-4Y8"/>
+                            <constraint firstItem="aeo-Yt-Tcn" firstAttribute="centerX" secondItem="umc-Al-abE" secondAttribute="centerX" id="2YY-Ad-WeS"/>
                             <constraint firstItem="zeE-Bl-acb" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="37" id="DQQ-4b-YB5"/>
-                            <constraint firstItem="B1g-S2-rVy" firstAttribute="leading" secondItem="zeE-Bl-acb" secondAttribute="leading" id="NMW-3U-hbO"/>
                             <constraint firstItem="zeE-Bl-acb" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="dQs-Ne-SKF"/>
+                            <constraint firstItem="aeo-Yt-Tcn" firstAttribute="top" secondItem="umc-Al-abE" secondAttribute="bottom" constant="66" id="f2K-ie-ZJk"/>
+                            <constraint firstItem="umc-Al-abE" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="jOj-0d-XXa"/>
                             <constraint firstItem="zeE-Bl-acb" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="jpD-LL-NXa"/>
-                            <constraint firstItem="B1g-S2-rVy" firstAttribute="trailing" secondItem="zeE-Bl-acb" secondAttribute="trailing" id="oFZ-SA-wrp"/>
+                            <constraint firstItem="umc-Al-abE" firstAttribute="top" secondItem="zeE-Bl-acb" secondAttribute="bottom" constant="8" id="pHs-aD-PYa"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="dIh-vb-evj"/>
                     <connections>
+                        <outlet property="textView" destination="umc-Al-abE" id="KgV-e8-tz3"/>
                         <outlet property="textfield" destination="zeE-Bl-acb" id="DtJ-RV-QRq"/>
-                        <outlet property="textfieldTwo" destination="B1g-S2-rVy" id="MD9-rW-oh2"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

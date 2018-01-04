@@ -58,6 +58,7 @@ static const char *cleanedSignalDescription(RACSignal *signal) {
 	self = [super init];
 
 	_innerSubscriber = subscriber;
+    // 弱引用
 	_signal = signal;
 	_disposable = disposable;
     
