@@ -29,7 +29,7 @@
 - (RACDisposable *)after:(NSDate *)date schedule:(void (^)(void))block {
 	NSCParameterAssert(date != nil);
 	NSCParameterAssert(block != NULL);
-
+    // 阻塞线程
 	[NSThread sleepUntilDate:date];
 	block();
 

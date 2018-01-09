@@ -115,6 +115,9 @@ NSString * const RACSchedulerCurrentSchedulerKey = @"RACSchedulerCurrentSchedule
 	return [self after:[NSDate dateWithTimeIntervalSinceNow:delay] schedule:block];
 }
 
+/**
+ * 是为RACScheduler添加一个定时任务，在date时间之后才开始执行，然后每隔interval秒执行一次任务。
+ */
 - (RACDisposable *)after:(NSDate *)date repeatingEvery:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway schedule:(void (^)(void))block {
 	NSCAssert(NO, @"%@ must be implemented by subclasses.", NSStringFromSelector(_cmd));
 	return nil;
@@ -186,6 +189,7 @@ NSString * const RACSchedulerCurrentSchedulerKey = @"RACSchedulerCurrentSchedule
 	}
 }
 
+// 执行 block
 - (void)performAsCurrentScheduler:(void (^)(void))block {
 	NSCParameterAssert(block != NULL);
 
@@ -193,7 +197,7 @@ NSString * const RACSchedulerCurrentSchedulerKey = @"RACSchedulerCurrentSchedule
 	// in which case we *don't* want to clear the current scheduler immediately
 	// after our block is done executing, but only *after* all our concurrent
 	// invocations are done.
-
+    
 	RACScheduler *previousScheduler = RACScheduler.currentScheduler;
 	NSThread.currentThread.threadDictionary[RACSchedulerCurrentSchedulerKey] = self;
 

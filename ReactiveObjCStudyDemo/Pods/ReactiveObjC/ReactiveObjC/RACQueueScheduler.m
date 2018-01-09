@@ -40,11 +40,12 @@
 #endif
 
 #pragma mark Date Conversions
-
+// 创建一个绝对的时间
 + (dispatch_time_t)wallTimeWithDate:(NSDate *)date {
 	NSCParameterAssert(date != nil);
 
 	double seconds = 0;
+    // 将参数的整数部分通过指针回传, 返回小数部分
 	double frac = modf(date.timeIntervalSince1970, &seconds);
 
 	struct timespec walltime = {
@@ -75,7 +76,7 @@
 	NSCParameterAssert(block != NULL);
 
 	RACDisposable *disposable = [[RACDisposable alloc] init];
-
+    
 	dispatch_after([self.class wallTimeWithDate:date], self.queue, ^{
 		if (disposable.disposed) return;
 		[self performAsCurrentScheduler:block];
@@ -92,7 +93,7 @@
 
 	uint64_t intervalInNanoSecs = (uint64_t)(interval * NSEC_PER_SEC);
 	uint64_t leewayInNanoSecs = (uint64_t)(leeway * NSEC_PER_SEC);
-
+    // 方法使用 dispatch_source_t 以及定时器，完成了每隔一段时间需要执行任务的需求。
 	dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, self.queue);
 	dispatch_source_set_timer(timer, [self.class wallTimeWithDate:date], intervalInNanoSecs, leewayInNanoSecs);
 	dispatch_source_set_event_handler(timer, block);
